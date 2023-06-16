@@ -1,0 +1,70 @@
+name: ChatGPT Generate Release Notes 
+
+on:
+  workflow_dispatch:
+    inputs:
+      commit_id_1:
+        description: 'Commit ID 1'
+        required: true
+      commit_id_2:
+        description: 'Commit ID 2'
+        required: true
+
+jobs:
+  generate-release-notes:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Install dependencies
+        run: |
+           python -m pip install --upgrade pip
+           pip install openai
+           pip install PyGithub
+
+      - name: Generate Release Notes
+        id: release-notes
+        run: |
+          export COMMIT_ID_1="${{ github.event.inputs.commit_id_1 }}"
+          export COMMIT_ID_2="${{ github.event.inputs.commit_id_2 }}"
+          export GPT_API_KEY="${{ secrets.OPENAI_API_KEY }}"  # Replace with your API key secret name
+
+          python generate_release_notes.py
+
+      - name: Create Release
+        run: |
+          echo "${{ steps.release-notes.outputs.release_notes }}" > release_notes.txt
+          gh release create "${{ github.sha }}" --title "Release ${{ github.sha }}" --notes-file release_notes.txt
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create Wiki Page
+        id: create-wiki-page
+        uses: actions/github-script@v6
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          script: |
+            const wikiName = `release_${new Date().toISOString().slice(0, 10)}`;
+            const wikiContent = `# Release Notes\n\n${{ steps.release-notes.outputs.release_notes }}`;
+            const createWikiPage = async () => {
+              try {
+                await octokit.request('POST /repos/{owner}/{repo}/pages', {
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  title: wikiName,
+                  content: wikiContent,
+                });
+                console.log(`Wiki page '${wikiName}' created.`);
+              } catch (error) {
+                core.setFailed(`Creating wiki page failed with error: ${error}`);
+              }
+            };
+            createWikiPage();
