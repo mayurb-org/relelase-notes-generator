@@ -1,0 +1,71 @@
+name: Deploy Application
+on:
+  workflow_call:
+    inputs:
+      image_tag:
+        required: true
+        type: string
+      environment:
+        required: true
+        type: string
+      initiative:
+        required: true
+        type: string
+      app:
+        required: true
+        type: string
+      artifact_project_id:
+        required: true
+        type: string
+      gcp_project_id:
+        required: true
+        type: string
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        required: true
+        type: string
+      environment:
+        required: true
+        type: string
+      initiative:
+        required: true
+        type: string
+      app:
+        required: true
+        type: string
+      artifact_project_id:
+        required: true
+        type: string
+      gcp_project_id:
+        required: true
+        type: string
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    name: Deploy Application
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Get Token
+        id: get-token
+        uses: getsentry/action-github-app-token@v1
+        with:
+          app_id: 207417
+          private_key: ${{ secrets.PRIVATE_KEY }}
+      - uses: actions/checkout@v2
+        with:
+          repository: ps-aartread-org/github-actions
+          token: ${{ steps.get-token.outputs.token }}
+          path: github-actions
+      - id: deploy
+        uses: ./github-actions/.github/workflows/deploy
+        with:
+          image_tag: ${{ inputs.image_tag }}
+          environment: ${{ inputs.environment }}
+          initiative: ${{ inputs.initiative }}
+          app: ${{ inputs.app }}
+          google_credentials: ${{ secrets.GOOGLE_CREDENTIALS }}
+          artifact_project_id: ${{ inputs.artifact_project_id }}
+          gcp_project_id: ${{ inputs.gcp_project_id }}

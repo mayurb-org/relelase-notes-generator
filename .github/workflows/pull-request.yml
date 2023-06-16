@@ -1,0 +1,159 @@
+name: Pull Request Quality Gate
+on:
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+jobs:
+  install-dependencies:
+    runs-on: ubuntu-latest
+    name: Install Dependencies
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Get Token
+        id: get-token
+        uses: getsentry/action-github-app-token@v1
+        with:
+          app_id: 207417
+          private_key: ${{ secrets.PRIVATE_KEY }}
+      - uses: actions/checkout@v2
+        with:
+          repository: ps-aartread-org/github-actions
+          token: ${{ steps.get-token.outputs.token }}
+          path: github-actions
+      - id: install-dependencies
+        uses: ./github-actions/.github/workflows/quality/install-dependencies
+
+  test-build:
+    runs-on: ubuntu-latest
+    needs: install-dependencies
+    strategy:
+      matrix:
+        environment: [dev, test, stage, production]
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Get Token
+        id: get-token
+        uses: getsentry/action-github-app-token@v1
+        with:
+          app_id: 207417
+          private_key: ${{ secrets.PRIVATE_KEY }}
+      - uses: actions/checkout@v2
+        with:
+          repository: ps-aartread-org/github-actions
+          token: ${{ steps.get-token.outputs.token }}
+          path: github-actions
+      - id: test-build
+        uses: ./github-actions/.github/workflows/quality/test-build
+
+  lighthouse:
+    runs-on: ubuntu-latest
+    needs: test-build
+    strategy:
+      matrix:
+        environment: [dev, test, stage, production]
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Get Token
+        id: get-token
+        uses: getsentry/action-github-app-token@v1
+        with:
+          app_id: 207417
+          private_key: ${{ secrets.PRIVATE_KEY }}
+      - uses: actions/checkout@v2
+        with:
+          repository: ps-aartread-org/github-actions
+          token: ${{ steps.get-token.outputs.token }}
+          path: github-actions
+      - id: lighthouse
+        uses: ./github-actions/.github/workflows/quality/lighthouse
+
+  bundle-analyzer:
+    runs-on: ubuntu-latest
+    needs: test-build
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Get Token
+        id: get-token
+        uses: getsentry/action-github-app-token@v1
+        with:
+          app_id: 207417
+          private_key: ${{ secrets.PRIVATE_KEY }}
+      - uses: actions/checkout@v2
+        with:
+          repository: ps-aartread-org/github-actions
+          token: ${{ steps.get-token.outputs.token }}
+          path: github-actions
+      - id: bundle-analyzer
+        uses: ./github-actions/.github/workflows/quality/bundle-analyzer
+
+  security-scan:
+    runs-on: ubuntu-latest
+    needs: install-dependencies
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Get Token
+        id: get-token
+        uses: getsentry/action-github-app-token@v1
+        with:
+          app_id: 207417
+          private_key: ${{ secrets.PRIVATE_KEY }}
+      - uses: actions/checkout@v2
+        with:
+          repository: ps-aartread-org/github-actions
+          token: ${{ steps.get-token.outputs.token }}
+          path: github-actions
+      - id: security-scan
+        uses: ./github-actions/.github/workflows/quality/security-scan
+
+  unit-tests:
+    runs-on: ubuntu-latest
+    needs: install-dependencies
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Get Token
+        id: get-token
+        uses: getsentry/action-github-app-token@v1
+        with:
+          app_id: 207417
+          private_key: ${{ secrets.PRIVATE_KEY }}
+      - uses: actions/checkout@v2
+        with:
+          repository: ps-aartread-org/github-actions
+          token: ${{ steps.get-token.outputs.token }}
+          path: github-actions
+      - id: unit-tests
+        uses: ./github-actions/.github/workflows/quality/unit-tests
+
+  sonar-scan:
+    runs-on: ubuntu-latest
+    needs: unit-tests
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Get Token
+        id: get-token
+        uses: getsentry/action-github-app-token@v1
+        with:
+          app_id: 207417
+          private_key: ${{ secrets.PRIVATE_KEY }}
+      - uses: actions/checkout@v2
+        with:
+          repository: ps-aartread-org/github-actions
+          token: ${{ steps.get-token.outputs.token }}
+          path: github-actions
+      - id: sonar-scan
+        uses: ./github-actions/.github/workflows/quality/sonar-scan

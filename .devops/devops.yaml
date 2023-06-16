@@ -1,0 +1,7 @@
+# Key Value mappings used by GitHub Actions
+language: nodejs
+language_version: 14
+initiative: patient
+app: react-helloworld
+artifact_project_id: burner-aartread
+gcp_project_id: burner-aartread

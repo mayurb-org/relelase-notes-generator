@@ -1,0 +1,58 @@
+name: Build Application
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    name: Build Application
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Get Token
+        id: get-token
+        uses: getsentry/action-github-app-token@v1
+        with:
+          app_id: 207417
+          private_key: ${{ secrets.PRIVATE_KEY }}
+      - uses: actions/checkout@v2
+        with:
+          repository: ps-aartread-org/github-actions
+          token: ${{ steps.get-token.outputs.token }}
+          path: github-actions
+      - id: build
+        uses: ./github-actions/.github/workflows/build
+        with:
+          commit_id: ${{ github.sha }}
+          google_credentials: ${{ secrets.GOOGLE_CREDENTIALS }}
+      - name: set outputs for deployment call
+        id: set-output
+        run: |
+          echo "::set-output name=initiative::${{ env.initiative }}"
+          echo "::set-output name=app::${{ env.app }}"
+          echo "::set-output name=artifact_project_id::${{ env.artifact_project_id }}"
+          echo "::set-output name=gcp_project_id::${{ env.gcp_project_id }}"
+    outputs:
+      initiative: ${{ steps.set-output.outputs.initiative }}
+      app: ${{ steps.set-output.outputs.app }}
+      artifact_project_id: ${{ steps.set-output.outputs.artifact_project_id }}
+      gcp_project_id: ${{ steps.set-output.outputs.gcp_project_id }}
+  call-workflow-deploy:
+    needs: build
+    uses: ./.github/workflows/deploy.yml
+    with:
+      image_tag: ${{ github.sha }}
+      environment: 'd'
+      initiative: ${{ needs.build.outputs.initiative }}
+      app: ${{ needs.build.outputs.app }}
+      artifact_project_id: ${{ needs.build.outputs.artifact_project_id }}
+      gcp_project_id: ${{ needs.build.outputs.gcp_project_id }}
+    secrets: inherit
+        

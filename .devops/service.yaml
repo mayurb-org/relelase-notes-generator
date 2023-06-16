@@ -1,0 +1,17 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  annotations:
+    run.googleapis.com/ingress: internal-and-cloud-load-balancing
+  name: 
+spec:
+  template:
+    spec:
+      containers:
+        - image:
+          ports:
+          - containerPort: 3000
+          resources:
+            limits:
+              memory: 512Mi
+              cpu: 1000m 
