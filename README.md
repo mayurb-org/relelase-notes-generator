@@ -1,36 +1,54 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Release Notes Generator
 
-## Getting Started
+This script generates release notes for a software project based on two commit IDs. It retrieves the commit information using Git commands and utilizes the OpenAI GPT-3.5 language model to generate the release notes.
 
-First, run the development server:
+## Usage
 
-```bash
-npm run dev
-# or
-yarn dev
-```
+1. Make sure you have Python installed on your system.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Install the required dependencies by running the following command:
 
-You can start editing the page by modifying `pages/index.js`. The page auto-updates as you edit the file.
+   ```
+   pip install openai
+   ```
 
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.js`.
+3. Set up the OpenAI API key by either:
+   - Exporting your API key as an environment variable named `OPENAI_API_KEY`, or
+   - Directly assigning your API key to the `openai.api_key` variable in the script.
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
+4. Modify the `COMMIT_ID_1` and `COMMIT_ID_2` environment variables to the desired commit IDs.
 
-## Learn More
+5. Run the script using the following command:
 
-To learn more about Next.js, take a look at the following resources:
+   ```
+   python release_notes_generator.py
+   ```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+6. The generated release notes will be displayed in the console.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+## How It Works
 
-## Deploy on Vercel
+1. The script uses the `retrieve_commit_info(commit_id)` function to retrieve the commit information for the given commit IDs. It utilizes Git commands executed through the subprocess module.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+2. The commit information from both commit IDs is combined into a prompt string.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+3. The script utilizes the OpenAI GPT-3.5 Turbo engine to generate the release notes. It sends the prompt string to the language model using the `openai.Completion.create()` function.
 
-Testing
+4. The generated release notes are extracted from the response and returned as a string.
+
+## Dependencies
+
+- Python 3.x
+- openai Python library
+
+## Limitations
+
+- The script has a default limit of 200 tokens for the generated release notes. If the release notes exceed this limit, they may be truncated. You can adjust the `max_tokens` parameter in the `openai.Completion.create()` function to accommodate longer release notes.
+
+- The script assumes that the Git command is available in the system's PATH variable. Make sure you have Git installed and properly configured.
+
+- The OpenAI GPT-3.5 Turbo engine has usage limits and may incur costs depending on your OpenAI subscription plan. Refer to the OpenAI documentation for more details.
+
+## License
+
+This script is released under the [MIT License](LICENSE). Feel free to modify and distribute it according to your needs.
