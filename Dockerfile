@@ -1,6 +1,6 @@
 FROM node:18-alpine
   
-# System Package Update
+# System Package Updates
 RUN apk update \
     && apk upgrade 
 
