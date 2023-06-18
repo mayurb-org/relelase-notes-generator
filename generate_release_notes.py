@@ -2,8 +2,6 @@ import os
 import subprocess
 import openai
 
-openai.api_key = os.environ['OPENAI_API_KEY']
-
 def retrieve_commit_info(commit_id):
     # Use Git command to retrieve commit information based on commit_id
     commit_info = subprocess.check_output(f"git show {commit_id}", shell=True, text=True)
@@ -15,7 +13,7 @@ def generate_release_notes(commit_id_1, commit_id_2):
 
     prompt = f"## Changes made in commit {commit_id_1}\n{commit_info_1}\n\n## Changes made in commit {commit_id_2}\n{commit_info_2}\n\n## Release Notes:"
     
-    # openai.api_key = os.environ["OPENAI_API_KEY"]  
+    openai.api_key = os.environ["OPENAI_API_KEY"]  
 
     response = openai.Completion.create(
         engine="gpt-3.5-turbo",

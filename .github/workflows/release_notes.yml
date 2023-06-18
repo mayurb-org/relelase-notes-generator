@@ -36,7 +36,7 @@ jobs:
         run: |
           export COMMIT_ID_1="${{ github.event.inputs.commit_id_1 }}"
           export COMMIT_ID_2="${{ github.event.inputs.commit_id_2 }}"
-          export GPT_API_KEY="${{ secrets.OPENAI_API_KEY }}"  # Replace with your API key secret name
+          export OPENAI_API_KEY="${{ secrets.OPENAI_API_KEY }}"  # Replace with your API key secret name
 
           python generate_release_notes.py
 
