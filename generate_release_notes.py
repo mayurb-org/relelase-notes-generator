@@ -24,7 +24,7 @@ def generate_release_notes(commit_id_1, commit_id_2):
         stop=None
     )
 
-    release_notes = response.choices[0].text.strip()
+    release_notes = response.choices[0].text.strip()2
     return release_notes
 
 if __name__ == "__main__":
