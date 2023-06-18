@@ -13,7 +13,7 @@ def generate_release_notes(commit_id_1, commit_id_2):
 
     prompt = f"## Changes made in commit {commit_id_1}\n{commit_info_1}\n\n## Changes made in commit {commit_id_2}\n{commit_info_2}\n\n## Release Notes:"
     
-    openai.api_key = os.environ["OPENAI_API_KEY"]  
+    openai.api_key = os.environ["OPENAI_API_KEY"]  # Retrieve API key from environment variable
 
     response = openai.Completion.create(
         engine="gpt-3.5-turbo",
@@ -21,10 +21,14 @@ def generate_release_notes(commit_id_1, commit_id_2):
         max_tokens=200,
         temperature=0.7,
         n=1,
-        stop=None
+        stop=None,
+        model="gpt-3.5-turbo",
+        chat_completions={
+            "messages": [{"role": "system", "content": "/start"}, {"role": "user", "content": prompt}]
+        }
     )
 
-    release_notes = response.choices[0].text.strip()
+    release_notes = response.choices[0].message.content.strip()
     return release_notes
 
 if __name__ == "__main__":
