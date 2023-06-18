@@ -22,7 +22,7 @@ def generate_release_notes(commit_id_1, commit_id_2):
         temperature=0.7,
         n=1,
         stop=None,
-        model="gpt-3.5-turbo",
+        model=None,
         chat_completions={
             "messages": [{"role": "system", "content": "/start"}, {"role": "user", "content": prompt}]
         }
