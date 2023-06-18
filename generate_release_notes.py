@@ -16,20 +16,16 @@ def generate_release_notes(commit_id_1, commit_id_2):
     openai.api_key = os.environ["OPENAI_API_KEY"]  # Retrieve API key from environment variable
 
     response = openai.Completion.create(
-        engine="gpt-3.5-turbo",
+        engine="text-davinci-003",
         prompt=prompt,
         max_tokens=200,
         temperature=0.7,
         n=1,
         stop=None,
-        model=None,
-        messages=[
-            {"role": "system", "content": "/start"},
-            {"role": "user", "content": prompt}
-        ]
+        model="gpt-3.5-turbo"
     )
 
-    release_notes = response.choices[0].message.content.strip()
+    release_notes = response.choices[0].text.strip()
     return release_notes
 
 if __name__ == "__main__":
