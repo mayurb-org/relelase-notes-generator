@@ -1,4 +1,4 @@
-name: ChatGPT Generate Release Notes 
+name: ChatGPT Generate Release Notes
 
 on:
   workflow_dispatch:
@@ -18,18 +18,18 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
-            fetch-depth: 0
+          fetch-depth: 0
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v2
         with:
           python-version: '3.x'
 
       - name: Install dependencies
         run: |
-           python -m pip install --upgrade pip
-           pip install openai
-           pip install PyGithub
+          python -m pip install --upgrade pip
+          pip install openai
+          pip install PyGithub
 
       - name: Generate Release Notes
         id: release-notes
@@ -40,10 +40,16 @@ jobs:
 
           python generate_release_notes.py
 
+      - name: Get latest release version
+        id: get-latest-version
+        run: |
+          latest_version=$(git tag --sort=v:refname | tail -n1)
+          echo "::set-output name=version::$latest_version"
+
       - name: Create Release
         run: |
           echo "${{ steps.release-notes.outputs.release_notes }}" > release_notes.txt
-          gh release create "${{ github.sha }}" --title "Release ${{ github.sha }}" --notes-file release_notes.txt
+          gh release create v${{ steps.get-latest-version.outputs.version }} --title "Release v${{ steps.get-latest-version.outputs.version }}" --notes-file release_notes.txt
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
