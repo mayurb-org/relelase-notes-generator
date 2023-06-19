@@ -4,7 +4,7 @@ import openai
 
 def retrieve_commit_info(commit_id):
     # Use Git command to retrieve commit information based on commit_id
-    commit_info = subprocess.check_output(f"git show {commit_id}", shell=True, text=True)
+    commit_info = subprocess.check_output(f"git show --stat {commit_id}", shell=True, text=True)
     return commit_info
 
 def generate_release_notes(commit_id_1, commit_id_2):
