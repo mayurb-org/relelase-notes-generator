@@ -8,10 +8,14 @@ def retrieve_commit_info(commit_id):
     return commit_info
 
 def generate_release_notes(commit_id_1, commit_id_2):
-    commit_info_1 = retrieve_commit_info(commit_id_1)
-    commit_info_2 = retrieve_commit_info(commit_id_2)
+    commit_range = get_commit_range(commit_id_1, commit_id_2)
 
-    prompt = f"## Changes made in commit {commit_id_1}\n{commit_info_1}\n\n## Changes made in commit {commit_id_2}\n{commit_info_2}\n\n## Release Notes:"
+    release_notes = ""
+    for commit_id in commit_range:
+        commit_info = retrieve_commit_info(commit_id)
+        release_notes += f"- **Changes made in commit {commit_id}**:\n{commit_info}\n\n"
+
+    prompt = f"## Release Notes:\n{release_notes}"
     
     openai.api_key = os.environ["OPENAI_API_KEY"]  # Retrieve API key from environment variable
 
@@ -31,6 +35,11 @@ def generate_release_notes(commit_id_1, commit_id_2):
 
     release_notes = " ".join(response_chunks).strip()
     return release_notes
+
+def get_commit_range(commit_id_1, commit_id_2):
+    cmd = f"git rev-list --reverse {commit_id_1}..{commit_id_2}"
+    commit_range = subprocess.check_output(cmd, shell=True, text=True).splitlines()
+    return commit_range
 
 def split_prompt(prompt, max_tokens):
     prompt_tokens = prompt.split()
